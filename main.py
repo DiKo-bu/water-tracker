@@ -11,9 +11,7 @@ def main(page: ft.Page):
     # Но этот вариант — самый стандартный для мобильного Chrome
     webview = fwv.WebView(
         url="https://www.yandex.kz",
-        expand=True,
-        user_agent="Mozilla/5.0 (Linux; Android 10; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36"
-    )
+        expand=True)
 
     # Добавляем напрямую в страницу, без посредников
     page.add(webview)
