@@ -1,17 +1,23 @@
 name: Build Flet APK
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
       - name: Build APK
         run: |
-          pip install flet
-          flet build apk
+          # Устанавливаем зависимости из твоего файла
+          pip install -r requirements.txt
+          # Собираем с указанием иконки и разрешения на интернет
+          flet build apk --icon assets/icon.png --permissions internet
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
