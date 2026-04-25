@@ -7,15 +7,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Устанавливаем Python, чтобы pip точно работал
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
       - uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
 
       - name: Build APK
         run: |
-          # Устанавливаем зависимости из твоего файла
-          pip install -r requirements.txt
-          # Собираем с указанием иконки и разрешения на интернет
+          python -m pip install --upgrade pip
+          pip install flet flet-webview
+          # Если есть requirements.txt, ставим из него
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Сама сборка
           flet build apk --icon assets/icon.png --permissions internet
 
       - name: Upload APK
