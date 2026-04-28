@@ -19,4 +19,4 @@ def main(page: ft.Page):
     # Обязательный пинок для отрисовки
     page.update()
 
-ft.app(target=main, assets_dir="assets")
+ft.app(target=main)
