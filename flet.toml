@@ -1,2 +1,2 @@
 [build.android]
-uses-cleartext-traffic = true
+uses_cleartext_traffic = true
