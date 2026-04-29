@@ -10,7 +10,7 @@ def main(page: ft.Page):
     # Если на Яндексе будет белый экран — значит библиотека не хавает этот UA
     # Но этот вариант — самый стандартный для мобильного Chrome
     webview = fwv.WebView(
-        url="http://127.0.0.1:8000/",
+        url="https://ntsc-mine-shopping-calendars.trycloudflare.com",
         expand=True)
 
     # Добавляем напрямую в страницу, без посредников
