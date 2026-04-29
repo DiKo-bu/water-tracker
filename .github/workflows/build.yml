@@ -20,12 +20,14 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | flutter doctor --android-licenses
 
+      - name: Install Flet dependencies
+        run: pip install --upgrade flet flet-webview
+
       - name: Patch Flet Android manifest
         run: |
           python -c "
           import flet, os
           flet_path = os.path.dirname(flet.__file__)
-          # Шаблон манифеста лежит здесь (актуально для flet 0.84)
           manifest_path = os.path.join(flet_path, 'android', 'app', 'src', 'main', 'AndroidManifest.xml')
           if os.path.exists(manifest_path):
               with open(manifest_path, 'r') as f:
@@ -46,7 +48,6 @@ jobs:
 
       - name: Build APK
         run: |
-          pip install --upgrade flet flet-webview
           flet build apk --android-app-icon assets/icon.png || flet build apk
 
       - name: Upload APK
