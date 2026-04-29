@@ -20,10 +20,33 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | flutter doctor --android-licenses
 
+      - name: Patch Flet Android manifest
+        run: |
+          python -c "
+          import flet, os
+          flet_path = os.path.dirname(flet.__file__)
+          # Шаблон манифеста лежит здесь (актуально для flet 0.84)
+          manifest_path = os.path.join(flet_path, 'android', 'app', 'src', 'main', 'AndroidManifest.xml')
+          if os.path.exists(manifest_path):
+              with open(manifest_path, 'r') as f:
+                  content = f.read()
+              if 'android:usesCleartextTraffic' not in content:
+                  content = content.replace('<application', '<application android:usesCleartextTraffic=\"true\" ')
+                  with open(manifest_path, 'w') as f:
+                      f.write(content)
+                  print('✅ Added usesCleartextTraffic=true')
+              else:
+                  print('Already present')
+          else:
+              print('⚠ Manifest not found, searching...')
+              for root, dirs, files in os.walk(flet_path):
+                  if 'AndroidManifest.xml' in files:
+                      print(f'Found at: {os.path.join(root, \"AndroidManifest.xml\")}')
+          "
+
       - name: Build APK
         run: |
           pip install --upgrade flet flet-webview
-          # сначала пробуем с иконкой
           flet build apk --android-app-icon assets/icon.png || flet build apk
 
       - name: Upload APK
