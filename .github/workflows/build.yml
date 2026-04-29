@@ -20,7 +20,7 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | flutter doctor --android-licenses
 
-      - name: Build APK (original)
+      - name: Build original APK
         run: |
           pip install --upgrade flet flet-webview
           flet build apk --android-app-icon assets/icon.png || flet build apk
@@ -30,11 +30,42 @@ jobs:
           wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
           wget -q https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar
           chmod +x apktool
-          sudo mv apktool apktool.jar /usr/local/bin/
+          sudo mv apktool /usr/local/bin/
+          sudo mv apktool_2.9.3.jar /usr/local/bin/apktool.jar
 
-      - name: Patch APK manifest
+      - name: Patch APK
         run: |
           APK=$(ls build/apk/*.apk | head -1)
+          echo "Patching: $APK"
+          apktool d -f "$APK" -o app_unpacked
+          sed -i 's/<application/<application android:usesCleartextTraffic="true" /' app_unpacked/AndroidManifest.xml
+          grep -q 'usesCleartextTraffic' app_unpacked/AndroidManifest.xml && echo "✅ Patched" || { echo "❌ Failed"; exit 1; }
+          apktool b app_unpacked -o app_modified.apk
+
+      - name: Sign APK
+        run: |
+          keytool -genkey -v \
+            -keystore debug.keystore \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass android \
+            -keypass android \
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -noprompt
+          APKSIGNER="$ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools/ | tail -1)/apksigner"
+          $APKSIGNER sign \
+            --ks debug.keystore \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            app_modified.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-fixed
+          path: app_modified.apk          APK=$(ls build/apk/*.apk | head -1)
           echo "Found APK: $APK"
           apktool d -f "$APK" -o app_unpacked
           MANIFEST="app_unpacked/AndroidManifest.xml"
