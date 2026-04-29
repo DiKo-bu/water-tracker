@@ -14,8 +14,8 @@ def main(page: ft.Page):
         expand=True)
 
     # Добавляем напрямую в страницу, без посредников
-    page.add(webview)
-    
+    #page.add(webview)
+    page.add(ft.SafeArea(webview, top=True))
     # Обязательный пинок для отрисовки
     page.update()
 
