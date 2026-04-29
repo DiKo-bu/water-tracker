@@ -22,8 +22,9 @@ jobs:
 
       - name: Build APK
         run: |
-          pip install flet flet-webview
-          flet build apk --icon assets/icon.png   # ваш путь к иконке
+          pip install --upgrade flet flet-webview
+          # сначала пробуем с иконкой
+          flet build apk --android-app-icon assets/icon.png || flet build apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
