@@ -10,7 +10,7 @@ def main(page: ft.Page):
     # Если на Яндексе будет белый экран — значит библиотека не хавает этот UA
     # Но этот вариант — самый стандартный для мобильного Chrome
     webview = fwv.WebView(
-        url="https://ntsc-mine-shopping-calendars.trycloudflare.com",
+        url="https://ottawa-descending-doctors-away.trycloudflare.com",
         width=page.width,
         height=page.height - 40,  # 40 — отступ под статус-бар, подбери под себя
         expand=False,
