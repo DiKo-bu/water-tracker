@@ -25,13 +25,18 @@ jobs:
           pip install --upgrade flet flet-webview
           flet build apk --android-app-icon assets/icon.png || flet build apk
 
-      - name: Download apktool
+      - name: Setup apktool
         run: |
-          wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
-          wget -q https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar
+          # Скачиваем только jar
+          wget -q https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar -O apktool.jar
+          # Создаём скрипт-обёртку
+          cat > apktool << 'EOF'
+          #!/bin/bash
+          java -jar "$(dirname "$0")/apktool.jar" "$@"
+          EOF
           chmod +x apktool
           sudo mv apktool /usr/local/bin/
-          sudo mv apktool_2.9.3.jar /usr/local/bin/apktool.jar
+          sudo mv apktool.jar /usr/local/bin/
 
       - name: Decompile APK
         run: |
