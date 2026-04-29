@@ -11,11 +11,14 @@ def main(page: ft.Page):
     # Но этот вариант — самый стандартный для мобильного Chrome
     webview = fwv.WebView(
         url="https://ntsc-mine-shopping-calendars.trycloudflare.com",
-        expand=True)
+        width=page.width,
+        height=page.height - 40,  # 40 — отступ под статус-бар, подбери под себя
+        expand=False,
+    )
 
     # Добавляем напрямую в страницу, без посредников
-    #page.add(webview)
-    page.add(ft.SafeArea(webview, top=True))
+    page.add(webview)
+   # page.add(ft.SafeArea(webview, top=True))
     # Обязательный пинок для отрисовки
     page.update()
 
