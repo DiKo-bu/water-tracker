@@ -5,13 +5,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
+
+      - name: Accept Android SDK licenses
+        run: yes | flutter doctor --android-licenses
+
       - name: Build APK
         run: |
           pip install flet flet-webview
-          # Исправленная команда сборки без лишних аргументов, которые валят процесс
+          flet build apk --icon assets/icon.png   # ваш путь к иконке
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
