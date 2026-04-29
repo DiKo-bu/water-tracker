@@ -20,56 +20,13 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | flutter doctor --android-licenses
 
-      - name: Build original APK
+      - name: Build APK
         run: |
           pip install --upgrade flet flet-webview
           flet build apk --android-app-icon assets/icon.png || flet build apk
 
-      - name: Setup apktool
-        run: |
-          # Скачиваем только jar
-          wget -q https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar -O apktool.jar
-          # Создаём скрипт-обёртку
-          cat > apktool << 'EOF'
-          #!/bin/bash
-          java -jar "$(dirname "$0")/apktool.jar" "$@"
-          EOF
-          chmod +x apktool
-          sudo mv apktool /usr/local/bin/
-          sudo mv apktool.jar /usr/local/bin/
-
-      - name: Decompile APK
-        run: |
-          APK=$(ls build/apk/*.apk | head -1)
-          apktool d -f "$APK" -o app_unpacked
-
-      - name: Inject cleartext permission
-        run: |
-          python -c "
-          import xml.etree.ElementTree as ET
-          ns = 'http://schemas.android.com/apk/res/android'
-          ET.register_namespace('android', ns)
-          tree = ET.parse('app_unpacked/AndroidManifest.xml')
-          root = tree.getroot()
-          app = root.find('application')
-          app.set('{' + ns + '}usesCleartextTraffic', 'true')
-          tree.write('app_unpacked/AndroidManifest.xml', encoding='utf-8', xml_declaration=True)
-          print('Done')
-          "
-
-      - name: Rebuild APK
-        run: apktool b app_unpacked -o app_modified.apk
-
-      - name: Generate debug keystore
-        run: keytool -genkey -v -keystore debug.keystore -alias androiddebugkey -keyalg RSA -keysize 2048 -validity 10000 -storepass android -keypass android -dname "CN=Android Debug,O=Android,C=US" -noprompt
-
-      - name: Sign APK
-        run: |
-          APKSIGNER="$ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools/ | tail -1)/apksigner"
-          $APKSIGNER sign --ks debug.keystore --ks-pass pass:android --key-pass pass:android app_modified.apk
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-fixed
-          path: app_modified.apk
+          name: app-release
+          path: build/apk/*.apk
