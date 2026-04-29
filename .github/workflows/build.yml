@@ -9,13 +9,13 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: 'stable'
+          channel: stable
 
       - name: Accept Android SDK licenses
         run: yes | flutter doctor --android-licenses
@@ -47,11 +47,9 @@ jobs:
           tree = ET.parse('app_unpacked/AndroidManifest.xml')
           root = tree.getroot()
           app = root.find('application')
-          if app is None:
-              raise Exception('No <application> tag')
           app.set('{' + ns + '}usesCleartextTraffic', 'true')
           tree.write('app_unpacked/AndroidManifest.xml', encoding='utf-8', xml_declaration=True)
-          print('✅ usesCleartextTraffic=true injected')
+          print('Done')
           "
 
       - name: Rebuild APK
@@ -69,62 +67,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-fixed
-          path: app_modified.apk            app_modified.apk
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-fixed
-          path: app_modified.apk          APK=$(ls build/apk/*.apk | head -1)
-          echo "Found APK: $APK"
-          apktool d -f "$APK" -o app_unpacked
-          MANIFEST="app_unpacked/AndroidManifest.xml"
-          sed -i 's/<application/<application android:usesCleartextTraffic="true" /' "$MANIFEST"
-          grep -q 'usesCleartextTraffic' "$MANIFEST" && echo "✅ Patched" || echo "❌ Failed"
-          apktool b app_unpacked -o app_modified.apk
-
-      - name: Sign APK
-        run: |
-          # Генерируем дебажный ключ (как у Flutter)
-          keytool -genkey -v \
-            -keystore debug.keystore \
-            -alias androiddebugkey \
-            -keyalg RSA \
-            -keysize 2048 \
-            -validity 10000 \
-            -storepass android \
-            -keypass android \
-            -dname "CN=Android Debug,O=Android,C=US" \
-            -noprompt
-          # Подписываем
-          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools/ | tail -1)/apksigner sign \
-            --ks debug.keystore \
-            --ks-pass pass:android \
-            --key-pass pass:android \
-            app_modified.apk
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-fixed
-          path: app_modified.apk                  with open(manifest_path, 'w') as f:
-                      f.write(content)
-                  print('✅ Added usesCleartextTraffic=true')
-              else:
-                  print('Already present')
-          else:
-              print('⚠ Manifest not found, searching...')
-              for root, dirs, files in os.walk(flet_path):
-                  if 'AndroidManifest.xml' in files:
-                      print(f'Found at: {os.path.join(root, \"AndroidManifest.xml\")}')
-          "
-
-      - name: Build APK
-        run: |
-          flet build apk --android-app-icon assets/icon.png || flet build apk
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-release
-          path: build/apk/*.apk
+          path: app_modified.apk
