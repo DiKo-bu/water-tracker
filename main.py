@@ -12,7 +12,7 @@ def main(page: ft.Page):
     webview = fwv.WebView(
         url="https://ottawa-descending-doctors-away.trycloudflare.com",
         width=page.width,
-        height=page.height - 40,  # 40 — отступ под статус-бар, подбери под себя
+        height=page.height - 120,  # 40 — отступ под статус-бар, подбери под себя
         expand=False,
     )
 
