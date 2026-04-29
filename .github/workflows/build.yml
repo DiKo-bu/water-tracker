@@ -20,21 +20,53 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | flutter doctor --android-licenses
 
-      - name: Install Flet dependencies
-        run: pip install --upgrade flet flet-webview
-
-      - name: Patch Flet Android manifest
+      - name: Build APK (original)
         run: |
-          python -c "
-          import flet, os
-          flet_path = os.path.dirname(flet.__file__)
-          manifest_path = os.path.join(flet_path, 'android', 'app', 'src', 'main', 'AndroidManifest.xml')
-          if os.path.exists(manifest_path):
-              with open(manifest_path, 'r') as f:
-                  content = f.read()
-              if 'android:usesCleartextTraffic' not in content:
-                  content = content.replace('<application', '<application android:usesCleartextTraffic=\"true\" ')
-                  with open(manifest_path, 'w') as f:
+          pip install --upgrade flet flet-webview
+          flet build apk --android-app-icon assets/icon.png || flet build apk
+
+      - name: Download apktool
+        run: |
+          wget -q https://raw.githubusercontent.com/iBotPeaches/Apktool/master/scripts/linux/apktool
+          wget -q https://bitbucket.org/iBotPeaches/apktool/downloads/apktool_2.9.3.jar
+          chmod +x apktool
+          sudo mv apktool apktool.jar /usr/local/bin/
+
+      - name: Patch APK manifest
+        run: |
+          APK=$(ls build/apk/*.apk | head -1)
+          echo "Found APK: $APK"
+          apktool d -f "$APK" -o app_unpacked
+          MANIFEST="app_unpacked/AndroidManifest.xml"
+          sed -i 's/<application/<application android:usesCleartextTraffic="true" /' "$MANIFEST"
+          grep -q 'usesCleartextTraffic' "$MANIFEST" && echo "✅ Patched" || echo "❌ Failed"
+          apktool b app_unpacked -o app_modified.apk
+
+      - name: Sign APK
+        run: |
+          # Генерируем дебажный ключ (как у Flutter)
+          keytool -genkey -v \
+            -keystore debug.keystore \
+            -alias androiddebugkey \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass android \
+            -keypass android \
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -noprompt
+          # Подписываем
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools/ | tail -1)/apksigner sign \
+            --ks debug.keystore \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            app_modified.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-fixed
+          path: app_modified.apk                  with open(manifest_path, 'w') as f:
                       f.write(content)
                   print('✅ Added usesCleartextTraffic=true')
               else:
