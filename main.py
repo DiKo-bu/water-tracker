@@ -4,20 +4,22 @@ import flet_webview as fwv
 def main(page: ft.Page):
     page.padding = 0
     page.spacing = 0
-    page.bgcolor = ft.Colors.BLACK  # чтобы не было белых артефактов
-
-    def on_resize(e):
-        webview.width = page.width
-        webview.height = page.height
-        page.update()
 
     webview = fwv.WebView(
-        url="https://ottawa-descending-doctors-away.trycloudflare.com",
-        expand=True,  # растягиваем на весь доступный контейнер
+        url="https://your-url.trycloudflare.com",
+        expand=True,
     )
 
-    page.on_resized = on_resize
-    page.add(webview)
+    page.add(
+        ft.Column(
+            controls=[
+                ft.Container(height=40),  # отступ под статус-бар, подбери 30-50
+                webview,
+            ],
+            spacing=0,
+            expand=True,
+        )
+    )
     page.update()
 
 ft.app(target=main)
