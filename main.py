@@ -11,7 +11,7 @@ def main(page: ft.Page):
         page.update()
 
     webview = fwv.WebView(
-        url="https://wells-based-autos-alternate.trycloudflare.com",
+        url="https://donald-open-bookmark-roulette.trycloudflare.com",
         expand=True,
         javascript_enabled=True,
     )
