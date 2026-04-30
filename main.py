@@ -14,7 +14,6 @@ def main(page: ft.Page):
         url="https://wells-based-autos-alternate.trycloudflare.com",
         expand=True,
         javascript_enabled=True,
-        on_navigation_request=on_navigation,
     )
 
     page.add(
