@@ -13,7 +13,7 @@ def main(page: ft.Page):
         url="https://ottawa-descending-doctors-away.trycloudflare.com",
         width=page.width,
         height=page.height - 120,  # 40 — отступ под статус-бар, подбери под себя
-        expand=False,
+        expand=True,
     )
 
     # Добавляем напрямую в страницу, без посредников
