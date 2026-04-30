@@ -6,7 +6,7 @@ def main(page: ft.Page):
     page.spacing = 0
 
     webview = fwv.WebView(
-        url="https://your-url.trycloudflare.com",
+        url="https://wells-based-autos-alternate.trycloudflare.com",
         expand=True,
     )
 
