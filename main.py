@@ -13,7 +13,6 @@ def main(page: ft.Page):
     webview = fwv.WebView(
         url="https://donald-open-bookmark-roulette.trycloudflare.com",
         expand=True,
-        javascript_enabled=True,
     )
 
     page.add(
